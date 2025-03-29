@@ -11,7 +11,15 @@ console.log('Iniciando o bot...');
 // Criar uma nova instância do cliente WhatsApp
 const client = new Client({
     puppeteer: {
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--disable-gpu'
+        ],
+        headless: true,
+        executablePath: process.env.CHROME_BIN || null
     }
 });
 
@@ -92,11 +100,13 @@ async function consolidarImagens(imagens) {
     }
 }
 
-// Gerar QR Code para autenticação
+// Configuração do QR Code
 client.on('qr', (qr) => {
-    console.log('Gerando QR Code...');
-    qrcode.generate(qr, {small: true});
-    console.log('Escaneie o QR Code acima com seu WhatsApp!');
+    console.log('\n\n=== QR CODE GERADO ===\n');
+    qrcode.generate(qr, { small: true }, function (qrcode) {
+        console.log(qrcode);
+    });
+    console.log('\n=== ESCANEIE O QR CODE ACIMA ===\n\n');
 });
 
 // Quando o cliente estiver pronto
@@ -110,9 +120,19 @@ client.on('ready', () => {
     console.log('=========================');
 });
 
+// Quando o cliente estiver autenticado
+client.on('authenticated', () => {
+    console.log('Cliente WhatsApp autenticado!');
+});
+
+// Quando houver falha na autenticação
+client.on('auth_failure', (msg) => {
+    console.log('Falha na autenticação:', msg);
+});
+
 // Quando houver desconexão
 client.on('disconnected', (reason) => {
-    console.log('Cliente desconectado:', reason);
+    console.log('Cliente WhatsApp desconectado:', reason);
 });
 
 // Responder a mensagens
@@ -427,4 +447,6 @@ client.on('message', async (msg) => {
 
 // Iniciar o cliente
 console.log('Iniciando cliente WhatsApp...');
-client.initialize();
+client.initialize().catch(err => {
+    console.error('Erro ao inicializar cliente:', err);
+});
