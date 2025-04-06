@@ -5,6 +5,7 @@ services:
     buildCommand: |
       npm install
       npm install sharp --platform=linux --arch=x64
+      npm install qrcode --save
     startCommand: node index.js
     envVars:
       - key: NODE_ENV
