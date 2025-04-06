@@ -1,0 +1,17 @@
+# Dependências
+node_modules/
+
+# Arquivos de ambiente
+.env
+
+# Arquivos temporários
+temp/
+.wwebjs_cache/
+auth_info/
+
+# Logs
+*.log
+
+# Sistema operacional
+.DS_Store
+Thumbs.db 

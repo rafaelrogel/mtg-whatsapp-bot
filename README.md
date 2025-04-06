@@ -1,30 +1,6 @@
-# MTG WhatsApp Bot
+# Bot do WhatsApp
 
-Bot do WhatsApp para buscar cartas de Magic: The Gathering.
-
-## Configuração no Render.com
-
-1. Crie uma conta no [Render.com](https://render.com)
-2. Conecte seu repositório GitHub
-3. Crie um novo Web Service
-4. Configure as seguintes variáveis de ambiente:
-   - `NODE_VERSION`: 18.0.0
-
-## Comandos Disponíveis
-
-- `!carta [nome]` - Busca uma carta (em português ou inglês)
-- `!ajuda` ou `!help` - Mostra ajuda detalhada
-- `!ping` - Responde com pong
-- `!oi` - Responde com uma saudação
-- `!status` - Verifica o status da API
-
-## Dependências
-
-- Node.js 18+
-- whatsapp-web.js
-- qrcode-terminal
-- axios
-- sharp
+Este é um bot simples do WhatsApp criado com Node.js e whatsapp-web.js.
 
 ## Requisitos
 
