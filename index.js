@@ -223,7 +223,8 @@ const client = new Client({
             '--no-zygote',
             '--disable-gpu'
         ],
-        headless: true
+        headless: true,
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null
     }
 });
 
@@ -632,5 +633,6 @@ client.on('message', async (msg) => {
 
 // Iniciar o cliente
 console.log('Iniciando cliente WhatsApp...');
-client.initialize();
-client.initialize();
+client.initialize().catch(err => {
+    console.error('Erro ao inicializar o cliente WhatsApp:', err);
+});

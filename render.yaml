@@ -7,6 +7,7 @@ services:
       npm install sharp --platform=linux --arch=x64
       npm install qrcode --save
       npm install puppeteer --save
+      npm install @sparticuz/chromium --save
     startCommand: node index.js
     envVars:
       - key: NODE_ENV
@@ -15,6 +16,8 @@ services:
         value: 10000
       - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
         value: "true"
+      - key: PUPPETEER_EXECUTABLE_PATH
+        value: "/opt/render/project/src/node_modules/@sparticuz/chromium/bin/chromium"
     healthCheckPath: /health
     autoDeploy: true
     disk:
