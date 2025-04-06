@@ -12,6 +12,16 @@ const QRCode = require('qrcode');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Configurações adicionais do Express
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Middleware para tratamento de erros
+app.use((err, req, res, next) => {
+    console.error('Erro no servidor:', err);
+    res.status(500).send('Erro interno do servidor');
+});
+
 // Variável global para armazenar o QR Code atual
 let currentQR = null;
 
@@ -95,15 +105,36 @@ app.get('/', (req, res) => {
     `);
 });
 
-// Rota de health check para o Render
+// Rota de health check melhorada
 app.get('/health', (req, res) => {
-    res.status(200).send('OK');
+    try {
+        res.status(200).json({
+            status: 'OK',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime()
+        });
+    } catch (error) {
+        console.error('Erro no health check:', error);
+        res.status(500).json({ status: 'ERROR', message: error.message });
+    }
 });
 
-// Iniciar o servidor Express
-app.listen(PORT, () => {
+// Iniciar o servidor Express com tratamento de erros
+const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Servidor web rodando na porta ${PORT}`);
     console.log(`QR Code disponível em: http://localhost:${PORT}/qr`);
+}).on('error', (error) => {
+    console.error('Erro ao iniciar o servidor:', error);
+    process.exit(1);
+});
+
+// Tratamento de erros não capturados
+process.on('uncaughtException', (error) => {
+    console.error('Erro não capturado:', error);
+});
+
+process.on('unhandledRejection', (error) => {
+    console.error('Promessa rejeitada não tratada:', error);
 });
 
 console.log('Iniciando o bot...');

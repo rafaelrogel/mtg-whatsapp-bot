@@ -2,10 +2,23 @@ services:
   - type: web
     name: mtg-whatsapp-bot
     env: node
-    buildCommand: npm install
+    buildCommand: |
+      npm install
+      npm install sharp --platform=linux --arch=x64
     startCommand: node index.js
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 10000
     healthCheckPath: /health
-    autoDeploy: true 
+    autoDeploy: true
+    disk:
+      name: temp
+      mountPath: /opt/render/project/src/temp
+      sizeGB: 1
+    scaling:
+      minInstances: 1
+      maxInstances: 1
+    plan: free
+    region: oregon 
