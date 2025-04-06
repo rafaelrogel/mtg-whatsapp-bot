@@ -221,7 +221,29 @@ const client = new Client({
             '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            '--disable-gpu'
+            '--disable-gpu',
+            '--disable-software-rasterizer',
+            '--disable-extensions',
+            '--disable-default-apps',
+            '--disable-popup-blocking',
+            '--disable-notifications',
+            '--disable-translate',
+            '--disable-sync',
+            '--disable-background-networking',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-breakpad',
+            '--disable-component-extensions-with-background-pages',
+            '--disable-features=TranslateUI,BlinkGenPropertyTrees',
+            '--disable-ipc-flooding-protection',
+            '--disable-renderer-backgrounding',
+            '--enable-features=NetworkService,NetworkServiceInProcess',
+            '--metrics-recording-only',
+            '--no-default-browser-check',
+            '--password-store=basic',
+            '--use-mock-keychain',
+            '--force-device-scale-factor=1',
+            '--window-size=1920,1080'
         ],
         headless: true,
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null
@@ -635,4 +657,5 @@ client.on('message', async (msg) => {
 console.log('Iniciando cliente WhatsApp...');
 client.initialize().catch(err => {
     console.error('Erro ao inicializar o cliente WhatsApp:', err);
+    console.error('Stack trace:', err.stack);
 });
