@@ -17,10 +17,82 @@ let currentQR = null;
 
 // Rota para servir o QR Code
 app.get('/qr', async (req, res) => {
-    if (!currentQR) {
-        return res.status(404).send('QR Code não disponível. Aguarde a geração.');
+    try {
+        if (!currentQR) {
+            return res.status(404).send(`
+                <html>
+                    <head>
+                        <title>QR Code não disponível</title>
+                        <meta http-equiv="refresh" content="5">
+                        <style>
+                            body { 
+                                font-family: Arial, sans-serif; 
+                                text-align: center; 
+                                padding: 20px;
+                            }
+                            .message {
+                                background: #f8f9fa;
+                                padding: 20px;
+                                border-radius: 5px;
+                                margin: 20px auto;
+                                max-width: 500px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="message">
+                            <h2>QR Code não disponível</h2>
+                            <p>Aguardando a geração do QR Code...</p>
+                            <p>Esta página será atualizada automaticamente em 5 segundos.</p>
+                        </div>
+                    </body>
+                </html>
+            `);
+        }
+        res.sendFile(currentQR);
+    } catch (erro) {
+        console.error('Erro ao servir QR Code:', erro);
+        res.status(500).send('Erro ao gerar QR Code');
     }
-    res.sendFile(currentQR);
+});
+
+// Rota principal
+app.get('/', (req, res) => {
+    res.send(`
+        <html>
+            <head>
+                <title>MTG WhatsApp Bot</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        text-align: center; 
+                        padding: 20px;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    .qr-link {
+                        display: inline-block;
+                        background: #25D366;
+                        color: white;
+                        padding: 10px 20px;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        margin-top: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>MTG WhatsApp Bot</h1>
+                    <p>Clique no botão abaixo para ver o QR Code:</p>
+                    <a href="/qr" class="qr-link">Ver QR Code</a>
+                </div>
+            </body>
+        </html>
+    `);
 });
 
 // Rota de health check para o Render
@@ -309,25 +381,29 @@ async function tentarReconexao() {
 client.on('qr', async (qr) => {
     console.log('Gerando QR Code...');
     
-    // Gerar QR Code como imagem
-    const tempDir = path.join(__dirname, 'temp');
-    if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir);
+    try {
+        // Gerar QR Code como imagem
+        const tempDir = path.join(__dirname, 'temp');
+        if (!fs.existsSync(tempDir)) {
+            fs.mkdirSync(tempDir);
+        }
+        
+        const qrPath = path.join(tempDir, 'qr.png');
+        await QRCode.toFile(qrPath, qr, {
+            color: {
+                dark: '#000000',
+                light: '#ffffff'
+            },
+            width: 400,
+            margin: 1
+        });
+        
+        currentQR = qrPath;
+        console.log(`QR Code gerado e disponível em: http://localhost:${PORT}/qr`);
+        console.log('Escaneie o QR Code com seu WhatsApp!');
+    } catch (erro) {
+        console.error('Erro ao gerar QR Code:', erro);
     }
-    
-    const qrPath = path.join(tempDir, 'qr.png');
-    await QRCode.toFile(qrPath, qr, {
-        color: {
-            dark: '#000000',
-            light: '#ffffff'
-        },
-        width: 400,
-        margin: 1
-    });
-    
-    currentQR = qrPath;
-    console.log(`QR Code gerado e disponível em: http://localhost:${PORT}/qr`);
-    console.log('Escaneie o QR Code com seu WhatsApp!');
 });
 
 // Quando o cliente estiver pronto
