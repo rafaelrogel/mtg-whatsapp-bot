@@ -28,8 +28,12 @@ let qrCodeBase64 = null;
 
 // Rota para servir o QR Code
 app.get('/qr', async (req, res) => {
+    console.log('Requisição recebida na rota /qr');
+    console.log('Status do QR Code:', qrCodeBase64 ? 'Disponível' : 'Não disponível');
+    
     try {
         if (!qrCodeBase64) {
+            console.log('QR Code ainda não disponível, enviando página de espera...');
             return res.status(404).send(`
                 <html>
                     <head>
@@ -71,12 +75,14 @@ app.get('/qr', async (req, res) => {
                             <div class="loading"></div>
                             <p>Aguardando a geração do QR Code...</p>
                             <p>Esta página será atualizada automaticamente em 5 segundos.</p>
+                            <p>Se o QR Code não aparecer em alguns minutos, tente recarregar a página.</p>
                         </div>
                     </body>
                 </html>
             `);
         }
         
+        console.log('Enviando página com QR Code...');
         res.send(`
             <html>
                 <head>
@@ -125,6 +131,7 @@ app.get('/qr', async (req, res) => {
         `);
     } catch (erro) {
         console.error('Erro ao servir QR Code:', erro);
+        console.error('Stack trace:', erro.stack);
         res.status(500).send('Erro ao gerar QR Code');
     }
 });
@@ -202,10 +209,21 @@ process.on('unhandledRejection', (error) => {
 
 console.log('Iniciando o bot...');
 
-// Criar uma nova instância do cliente WhatsApp
+// Inicializar o cliente WhatsApp
+console.log('Inicializando cliente WhatsApp...');
 const client = new Client({
+    authStrategy: new LocalAuth(),
     puppeteer: {
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu'
+        ],
+        headless: true
     }
 });
 
@@ -471,12 +489,33 @@ async function tentarReconexao() {
     return false;
 }
 
+// Evento quando o cliente está pronto
+client.on('ready', () => {
+    console.log('Cliente WhatsApp está pronto!');
+});
+
+// Evento quando o cliente é desconectado
+client.on('disconnected', (reason) => {
+    console.log('Cliente WhatsApp desconectado:', reason);
+});
+
+// Evento quando o cliente é autenticado
+client.on('authenticated', () => {
+    console.log('Cliente WhatsApp autenticado!');
+});
+
+// Evento quando o cliente falha na autenticação
+client.on('auth_failure', (msg) => {
+    console.error('Falha na autenticação do WhatsApp:', msg);
+});
+
 // Modificar o evento de QR Code
 client.on('qr', async (qr) => {
-    console.log('Gerando QR Code...');
+    console.log('Evento QR Code recebido, gerando QR Code...');
     
     try {
         // Gerar QR Code como base64
+        console.log('Iniciando geração do QR Code como base64...');
         qrCodeBase64 = await QRCode.toDataURL(qr, {
             color: {
                 dark: '#000000',
@@ -487,39 +526,13 @@ client.on('qr', async (qr) => {
         });
         
         console.log('QR Code gerado com sucesso!');
+        console.log('Tamanho do QR Code base64:', qrCodeBase64.length);
         console.log('Escaneie o QR Code com seu WhatsApp!');
     } catch (erro) {
         console.error('Erro ao gerar QR Code:', erro);
+        console.error('Stack trace:', erro.stack);
     }
 });
-
-// Quando o cliente estiver pronto
-client.on('ready', () => {
-    console.log('=========================');
-    console.log('Cliente WhatsApp está pronto!');
-    console.log('Comandos disponíveis:');
-    console.log('- !ping');
-    console.log('- !oi');
-    console.log('- !carta [nome da carta]');
-    console.log('=========================');
-});
-
-// Eventos de autenticação e conexão
-client.on('auth_failure', async (msg) => {
-    console.error('Falha de autenticação:', msg);
-    await msg.reply('❌ Falha na autenticação. Por favor, tente novamente.');
-});
-
-client.on('disconnected', async (reason) => {
-    console.log('Cliente desconectado:', reason);
-    const reconectou = await tentarReconexao();
-    if (!reconectou) {
-        console.error('Não foi possível reconectar após várias tentativas');
-    }
-});
-
-// Limpar diretório temporário a cada hora
-setInterval(limparDiretorioTemp, 3600000);
 
 // Função principal de busca de carta com melhor tratamento de erros
 async function buscarCarta(msg, searchQuery) {
