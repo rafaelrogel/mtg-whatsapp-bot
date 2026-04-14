@@ -13,7 +13,7 @@ process.on('unhandledRejection', (error) => {
 });
 
 const app = web.createServer();
-const server = web.startServer(app);
+web.startServer(app);
 
 setInterval(limparDiretorioTemp, 3600000);
 

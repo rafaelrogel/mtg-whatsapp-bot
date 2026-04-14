@@ -1,6 +1,5 @@
 const fs = require('fs');
-const path = require('path');
-const { garantirDiretorioTemp, limparArquivoTemp, baixarESalvarImagem, consolidarImagens } = require('./scryfall');
+const { consolidarImagens, limparArquivoTemp } = require('./scryfall');
 const logger = require('./logger');
 
 async function enviarImagem(sock, jid, caminhoArquivo, legenda) {

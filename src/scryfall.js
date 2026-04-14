@@ -5,7 +5,7 @@ const sharp = require('sharp');
 const { SCRYFALL_DELAY, SCRYFALL_BASE_URL, API_CACHE_TTL } = require('./config');
 const logger = require('./logger');
 
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const delay = ms => new Promise(r => setTimeout(r, ms));
 
 const scryfallApi = axios.create({
     baseURL: SCRYFALL_BASE_URL,
@@ -56,7 +56,7 @@ async function buscarCartaFuzzy(nome) {
         await delay(SCRYFALL_DELAY);
         const response = await scryfallApi.get(`/cards/named?fuzzy=${encodeURIComponent(nome)}`);
         return response.data;
-    } catch (erro) {
+    } catch {
         return null;
     }
 }

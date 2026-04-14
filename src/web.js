@@ -3,17 +3,14 @@ const QRCode = require('qrcode');
 const logger = require('./logger');
 const { PORT } = require('./config');
 
-let currentQR = null;
 let qrCodeBase64 = null;
 let isConnected = false;
 
 function setStatus(connected) { isConnected = connected; }
-function setQR(qr) { currentQR = qr; }
 function getQRBase64() { return qrCodeBase64; }
-function clearQR() { qrCodeBase64 = null; currentQR = null; }
+function clearQR() { qrCodeBase64 = null; }
 
 async function generateQRBase64(qr) {
-    currentQR = qr;
     qrCodeBase64 = await QRCode.toDataURL(qr, {
         color: { dark: '#000000', light: '#ffffff' },
         width: 400,
@@ -27,7 +24,7 @@ function createServer() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
-    app.use((err, req, res, next) => {
+    app.use((err, _req, res, _next) => {
         logger.error({ err: err.message }, 'Erro no servidor');
         res.status(500).send('Erro interno do servidor');
     });
@@ -70,4 +67,4 @@ function startServer(app) {
     });
 }
 
-module.exports = { createServer, startServer, setStatus, setQR, getQRBase64, clearQR, generateQRBase64, isConnected: () => isConnected };
+module.exports = { createServer, startServer, setStatus, getQRBase64, clearQR, generateQRBase64, isConnected: () => isConnected };

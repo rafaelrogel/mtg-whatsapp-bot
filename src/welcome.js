@@ -86,7 +86,7 @@ async function sendMonthlyWelcome(sock) {
         if (shouldSendMonthly(groupJid)) {
             await sendWelcome(sock, groupJid);
             sent++;
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(r => setTimeout(r, 2000));
         }
     }
 
