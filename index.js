@@ -244,7 +244,7 @@ async function buscarCartaScryfall(query, lang = null) {
         await delay(SCRYFALL_DELAY);
         let searchQuery = query;
         if (lang) {
-            searchQuery += `+lang:${lang}`;
+            searchQuery += `+lang:${lang}+game:paper`;
         }
         const response = await scryfallApi.get(`/cards/search?q=${encodeURIComponent(searchQuery)}&unique=cards`);
         return response.data;
@@ -272,18 +272,19 @@ const DICIONARIO_PT_EN = {
     'conterspell': 'Counterspell',
     'contrafeitiço': 'Counterspell',
     'contrafeitico': 'Counterspell',
+    'contrafeitico': 'Counterspell',
     'girino': 'Giant Growth',
     'crescimento gigante': 'Giant Growth',
     'terror': 'Terror',
     'praga': 'Plague',
-    'anjo': 'Angel',
-    'dragão': 'Dragon',
-    'dragao': 'Dragon',
-    'elfo': 'Elf',
-    'duende': 'Goblin',
-    'mago': 'Wizard',
-    'cavaleiro': 'Knight',
-    'guerreiro': 'Warrior',
+    'anjo': 'Angel of Grace',
+    'dragão': 'Dragon Whelp',
+    'dragao': 'Dragon Whelp',
+    'elfo': 'Elvish Mystic',
+    'duende': 'Goblin Guide',
+    'mago': 'Snapcaster Mage',
+    'cavaleiro': 'Knight of the White Orchid',
+    'guerreiro': 'Warrior en-Kor',
     'feiticeiro': 'Sorcerer',
     'planinauta': 'Planeswalker',
     'encantamento': 'Enchantment',
@@ -310,6 +311,19 @@ const DICIONARIO_PT_EN = {
     'pantano': 'Swamp',
     'planície': 'Plains',
     'planicie': 'Plains',
+    'despacho': 'Swords to Plowshares',
+    'despachar': 'Swords to Plowshares',
+    'caminho': 'Path to Exile',
+    'caminho para o exilio': 'Path to Exile',
+    'raio negro': 'Black Lightning',
+    'raios': 'Lightning Bolt',
+    'bola de fogo': 'Fireball',
+    'furacao': 'Hurricane',
+    'furacão': 'Hurricane',
+    'conflagração': 'Conflagrate',
+    'pregar': 'Pillage',
+    'ressurgir': 'Reanimate',
+    'reanimar': 'Reanimate',
 };
 
 async function enviarImagem(sock, jid, caminhoArquivo, legenda) {
@@ -450,10 +464,13 @@ function validarQueryBusca(query) {
 
 async function verificarStatusAPI() {
     try {
-        const response = await scryfallApi.get('/health');
-        return response.data.status === 'healthy';
+        const response = await scryfallApi.get('/cards/search?q=is:commander', { timeout: 5000 });
+        return response.status === 200;
     } catch (erro) {
-        console.error('Erro ao verificar status da API:', erro);
+        if (erro.response && erro.response.status === 404) {
+            return true;
+        }
+        console.error('Erro ao verificar status da API:', erro.message);
         return false;
     }
 }
@@ -480,7 +497,7 @@ async function buscarCarta(sock, jid, searchQuery) {
         }
 
         const cartaFuzzy = await buscarCartaFuzzy(queryValidada);
-        if (cartaFuzzy) {
+        if (cartaFuzzy && cartaFuzzy.name) {
             const nomePT = cartaFuzzy.printed_name;
             const legendaExtra = nomePT && nomePT !== cartaFuzzy.name ? ` (${nomePT})` : '';
             console.log(`Fuzzy match: "${queryValidada}" → "${cartaFuzzy.name}"`);
@@ -490,9 +507,7 @@ async function buscarCarta(sock, jid, searchQuery) {
             }
         }
 
-        const queryScryfall = queryLower.split(/\s+/).length === 1
-            ? `name:${queryValidada}`
-            : `name:${queryValidada}`;
+        const queryScryfall = `"${queryValidada}"`;
 
         const resultadoPT = await buscarCartaScryfall(queryScryfall, 'pt');
         if (await processarResultadoBusca(sock, jid, resultadoPT, queryValidada, 'pt')) {
