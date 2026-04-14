@@ -2,7 +2,7 @@ const makeWASocket = require('@whiskeysockets/baileys').default;
 const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
 const qrcodeTerminal = require('qrcode-terminal');
 const logger = require('./logger');
-const { AUTH_DIR, ALLOW_GROUPS } = require('./config');
+const { AUTH_DIR, ALLOW_GROUPS, ALLOW_DM } = require('./config');
 const { buscarCarta, handleCommand, checkRateLimit } = require('./commands');
 const { verificarStatusAPI, limparDiretorioTemp } = require('./scryfall');
 const web = require('./web');
@@ -57,7 +57,9 @@ async function connectToWhatsApp() {
             if (!msg.key.fromMe && m.type === 'notify') {
                 const jid = msg.key.remoteJid;
                 const isGroup = jid.endsWith('@g.us');
+                const isDM = !isGroup;
 
+                if (isDM && !ALLOW_DM) continue;
                 if (isGroup && !ALLOW_GROUPS) continue;
 
                 const messageText = msg.message?.conversation || msg.message?.extendedTextMessage?.text || '';

@@ -66,7 +66,8 @@ module.exports = {
     RATE_LIMIT_MS: 3000,
     RATE_LIMIT_MAX: 1,
     API_CACHE_TTL: 300000,
-    ALLOW_GROUPS: process.env.ALLOW_GROUPS === 'true',
+    ALLOW_GROUPS: true,
+    ALLOW_DM: process.env.ALLOW_DM === 'true',
     TEMP_DIR: 'temp',
     AUTH_DIR: 'auth_info_baileys',
 };
