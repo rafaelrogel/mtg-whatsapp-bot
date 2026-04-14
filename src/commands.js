@@ -145,6 +145,7 @@ function handleCommand(sock, jid, comando, argumentos) {
                 `Comandos disponíveis:\n` +
                 `!carta [nome] - Busca uma carta (em português ou inglês)\n` +
                 `!ajuda ou !help - Mostra esta mensagem de ajuda\n` +
+                `!welcome - Mostra a mensagem de apresentação do bot\n` +
                 `!ping - Responde com pong\n` +
                 `!oi - Responde com uma saudação\n` +
                 `!status - Verifica o status da API\n\n` +
@@ -152,7 +153,7 @@ function handleCommand(sock, jid, comando, argumentos) {
         case '!ping':
             return 'pong';
         case '!oi':
-            return 'Olá! Eu sou o ManaMate, seu assistente para buscar cartas de Magic: The Gathering! 🎴\n\nComandos disponíveis:\n!carta [nome] - Busca uma carta (em português ou inglês)\n!ajuda ou !help - Mostra ajuda detalhada\n!ping - Responde com pong\n!oi - Mostra esta mensagem\n!status - Verifica o status da API\n\nComo posso ajudar?';
+            return 'Olá! Eu sou o ManaMate, seu assistente para buscar cartas de Magic: The Gathering! 🎴\n\nComandos disponíveis:\n!carta [nome] - Busca uma carta (em português ou inglês)\n!ajuda ou !help - Mostra ajuda detalhada\n!welcome - Mostra a apresentação do bot\n!ping - Responde com pong\n!oi - Mostra esta mensagem\n!status - Verifica o status da API\n\nComo posso ajudar?';
         case '!carta':
             return argumentos ? null : '❌ Por favor, especifique o nome da carta após o comando !carta';
         default:

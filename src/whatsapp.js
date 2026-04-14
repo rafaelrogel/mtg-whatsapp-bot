@@ -5,6 +5,7 @@ const logger = require('./logger');
 const { AUTH_DIR, ALLOW_GROUPS, ALLOW_DM } = require('./config');
 const { buscarCarta, handleCommand, checkRateLimit } = require('./commands');
 const { verificarStatusAPI, limparDiretorioTemp } = require('./scryfall');
+const { sendWelcome, trackGroup, startMonthlySchedule } = require('./welcome');
 const web = require('./web');
 
 let sock = null;
@@ -49,6 +50,7 @@ async function connectToWhatsApp() {
             web.setStatus(true);
             web.clearQR();
             logger.info('Conectado ao WhatsApp com sucesso!');
+            startMonthlySchedule(sock);
         }
     });
 
@@ -61,6 +63,8 @@ async function connectToWhatsApp() {
 
                 if (isDM && !ALLOW_DM) continue;
                 if (isGroup && !ALLOW_GROUPS) continue;
+
+                if (isGroup) trackGroup(jid);
 
                 const messageText = msg.message?.conversation || msg.message?.extendedTextMessage?.text || '';
                 if (!messageText.trim().startsWith('!')) continue;
@@ -77,6 +81,11 @@ async function connectToWhatsApp() {
                     if (comando === '!status') {
                         const apiOnline = await verificarStatusAPI();
                         await sock.sendMessage(jid, { text: apiOnline ? '✅ API do Scryfall está online e funcionando!' : '❌ API do Scryfall está indisponível no momento.' });
+                        continue;
+                    }
+
+                    if (comando === '!welcome') {
+                        await sendWelcome(sock, jid);
                         continue;
                     }
 
