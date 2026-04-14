@@ -6,8 +6,7 @@ node_modules/
 
 # Arquivos temporários
 temp/
-.wwebjs_cache/
-auth_info/
+auth_info_baileys/
 
 # Logs
 *.log

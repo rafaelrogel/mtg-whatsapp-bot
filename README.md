@@ -1,12 +1,11 @@
-# Bot do WhatsApp
+# MTG WhatsApp Bot (ManaMate)
 
-Este é um bot simples do WhatsApp criado com Node.js e whatsapp-web.js.
+Bot do WhatsApp para buscar cartas de Magic: The Gathering, agora usando **Baileys** (sem Puppeteer).
 
 ## Requisitos
 
-- Node.js instalado
-- NPM (Node Package Manager)
-- WhatsApp no celular
+- Node.js 18+
+- NPM
 
 ## Instalação
 
@@ -23,16 +22,30 @@ npm install
 npm start
 ```
 
-2. Escaneie o QR Code que aparecerá no terminal com seu WhatsApp
+2. Escaneie o QR Code que aparecerá no terminal ou acesse `http://localhost:3000/qr`
 
 3. Comandos disponíveis:
 - `!ping` - O bot responderá com "pong"
 - `!oi` - O bot responderá com uma saudação
 - `!carta [nome da carta]` - Busca uma carta no Scryfall e mostra sua imagem e texto
+- `!ajuda` ou `!help` - Mostra os comandos disponíveis
+- `!status` - Verifica o status da API do Scryfall
 
 ## Observações
 
 - Na primeira execução, você precisará escanear o QR Code para autenticar o bot
-- As sessões subsequentes serão salvas automaticamente
-- Não compartilhe o QR Code com ninguém
-- Para buscar cartas, use o nome exato da carta em inglês 
+- A sessão é salva automaticamente na pasta `auth_info_baileys`
+- Para buscar cartas, prefira o nome em inglês para melhores resultados
+- O Baileys se reconecta automaticamente caso a conexão caia
+
+## Mudanças da versão com Baileys
+
+- Removido Puppeteer/whatsapp-web.js (mais leve, sem navegador headless)
+- Autenticação via `useMultiFileAuthState` (sessão salva em `auth_info_baileys/`)
+- Reconexão automática em caso de desconexão
+- QR Code disponível no terminal e via web (`/qr`)
+- Status da conexão WhatsApp visível na página principal (`/`)
+
+## Deploy
+
+O bot está configurado para deploy no Render via `render.yaml`.
